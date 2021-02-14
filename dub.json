@@ -1,0 +1,9 @@
+{
+	"authors": [
+		"Mina"
+	],
+	"copyright": "Copyright © 2021, Mina",
+	"description": "Lox lang from crafting interpters book",
+	"license": "MIT",
+	"name": "dlox"
+}
