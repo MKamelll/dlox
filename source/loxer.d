@@ -20,7 +20,7 @@ private enum TokenType
   GREATER, GREATER_EQUAL,
   LESS, LESS_EQUAL,
 
-  // Literals.
+  // LexLiterals.
   IDENTIFIER, STRING, NUMBER,
 
   // Keywords.
@@ -30,21 +30,21 @@ private enum TokenType
   EOF
 }
 
-alias Literal = Algebraic!(string, double, typeof(null));
-private string literalStr(Literal literal) {
+alias LexLiteral = Algebraic!(int, string, double, typeof(null));
+string lexLiteralStr(LexLiteral literal) {
   return literal.toString();
 }
 
-private struct Token
+struct Token
 {
   TokenType type;
   string lexeme;
-  Literal literal;
+  LexLiteral literal;
   int line;
 
   string toString() const {
     return "Token(" ~ to!string(type) ~ ", " ~ 
-    lexeme ~ ", " ~ literalStr(literal) ~ ")";
+    lexeme ~ ", " ~ lexLiteralStr(literal) ~ ")";
   }
 }
 
@@ -88,7 +88,7 @@ class Scanner
       scanToken();
     }
     tokens ~= Token(TokenType.EOF, "\"\"",
-     Literal(null), line);
+     LexLiteral(null), line);
     return tokens;
   }
 
@@ -167,10 +167,10 @@ class Scanner
   }
 
   private void addToken(TokenType type) {
-    addToken(type, Literal(null));
+    addToken(type, LexLiteral(null));
   }
 
-  private void addToken(TokenType type, Literal literal) {
+  private void addToken(TokenType type, LexLiteral literal) {
     string text = source[start..current];
     tokens ~= Token(type, text, literal, line);
   }
@@ -202,7 +202,7 @@ class Scanner
 
     // trimming quotes
     string value = source[(start + 1)..(current - 1)];
-    addToken(TokenType.STRING, Literal(value));
+    addToken(TokenType.STRING, LexLiteral(value));
   }
 
   private bool isDigit(char c) {
@@ -216,7 +216,7 @@ class Scanner
       while (isDigit(peek())) advance();     
     }
     addToken(TokenType.NUMBER, 
-    Literal(to!double(source[start..current])));
+    LexLiteral(to!double(source[start..current])));
   }
 
   private char peekNext() {
