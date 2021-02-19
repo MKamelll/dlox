@@ -7,7 +7,7 @@ import std.typecons;
 import std.stdio;
 import loxerr;
 
-private enum TokenType
+enum TokenType
 {
 	
   // Single-character tokens.
