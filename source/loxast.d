@@ -5,7 +5,7 @@ import loxer;
 
 // using void as return type of visit and accept
 // as D's generics are compile time templates
-// other ways would be tagged unions (std.variant in D)
+// other ways would be discriminated unions (std.variant in D)
 // or tag based dispatch
 // answered by: Paul Backus
 // https://forum.dlang.org/post/ardcugqzjcxbtqqmvlxa@forum.dlang.org
