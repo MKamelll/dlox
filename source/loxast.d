@@ -3,17 +3,24 @@ module loxast;
 import std.variant;
 import loxer;
 
-interface Visitor(T)
+// using void as return type of visit and accept
+// as D's generics are compile time templates
+// other ways would be tagged unions (std.variant in D)
+// or tag based dispatch
+// answered by: Paul Backus
+// https://forum.dlang.org/post/ardcugqzjcxbtqqmvlxa@forum.dlang.org
+
+interface Visitor
 {
-  T visit(Expr.Binary expr);
-  T visit(Expr.Literal expr);
-  T visit(Expr.Unary expr);
-  T visit(Expr.Grouping expr);
+  void visit(Expr.Binary expr);
+  void visit(Expr.Literal expr);
+  void visit(Expr.Unary expr);
+  void visit(Expr.Grouping expr);
 }
 
 abstract class Expr {
 
-  string accept(Visitor!string visitor);
+  abstract void accept(Visitor visitor);
 
   static class Binary : Expr
   {
@@ -25,8 +32,10 @@ abstract class Expr {
       this.operator = operator;
       this.right = right;
     }
-    override string accept(Visitor!string visitor) {
-      return visitor.visit(this);
+    
+    override
+    void accept(Visitor visitor) {
+      visitor.visit(this);
     }
   }
 
@@ -38,8 +47,10 @@ abstract class Expr {
      this.operator = operator;
       this.right = right;
     }
-    override string accept(Visitor!string visitor) {
-      return visitor.visit(this);
+    
+    override
+    void accept(Visitor visitor) {
+      visitor.visit(this);
     }
   }
 
@@ -49,8 +60,10 @@ abstract class Expr {
     this(LexLiteral literal) {
       this.literal = literal;
     }
-    override string accept(Visitor!string visitor) {
-      return visitor.visit(this);
+    
+    override
+    void accept(Visitor visitor) {
+      visitor.visit(this);
     }
   }
 
@@ -60,53 +73,56 @@ abstract class Expr {
     this(Expr expression) {
       this.expression = expression;
     }
-    override string accept(Visitor!string visitor) {
-      return visitor.visit(this);
+    
+    override
+    void accept(Visitor visitor) {
+      visitor.visit(this);
     }
   }
 }
 
-class AstPrinter : Visitor!string
+class AstPrinter : Visitor
 {
+  string result;
+  
   string print(Expr expr) {
-    return expr.accept(this);
+    expr.accept(this);
+    return result;
   }
  
-  string visit(Expr.Binary expr) {
-    return parenthesize(expr.operator.lexeme,
+  override
+  void visit(Expr.Binary expr) {
+    result = parenthesize(expr.operator.lexeme,
                         expr.left, expr.right);
   }
 
-  string visit(Expr.Literal expr) {
-    if (!expr.literal.hasValue) return "nil";
-    return lexLiteralStr(expr.literal);
+  override
+  void visit(Expr.Literal expr) {
+    if (!expr.literal.hasValue)
+      result = "nil";
+    else result = lexLiteralStr(expr.literal);
   }
 
-  string visit(Expr.Unary expr) {
-    return parenthesize(expr.operator.lexeme, expr.right);
+  override 
+  void visit(Expr.Unary expr) {
+    result = parenthesize(expr.operator.lexeme, expr.right);
   }
 
-  string visit(Expr.Grouping expr) {
-    return parenthesize("group", expr.expression);
+  override
+  void visit(Expr.Grouping expr) {
+    result = parenthesize("group", expr.expression);
   }
 
-  string parenthesize(string name, Expr[] exprs...) {
-    string result;
-    result ~= "(" ~ name;
+  private string parenthesize(string name, Expr[] exprs...) {
+    string strParen;
+    strParen ~= "(" ~ name;
     foreach (expr; exprs)
     {
-      result ~= " " ~ expr.accept(this);
+      expr.accept(this);
+      strParen ~= " " ~ result;
     }
-    result ~= ")";
-    
-    return result;
+    strParen ~= ")";
+
+    return strParen;
   }
 }
-/* test
-void main() {
-  import std.stdio : writeln;
-  
-  auto b = new Expr.Literal(LexLiteral(123));
-
-  writeln(new AstPrinter().print(b));
-}*/

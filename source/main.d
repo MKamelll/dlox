@@ -13,7 +13,6 @@ void runFile(string path) {
 }
 
 void runPrompt() {
-
   while (true) {
     stdout.write("> ");
     string inputLine = stdin.readln();
@@ -34,7 +33,7 @@ void run(string source) {
   }
 }
 
-void main(string[] args) {
+void main(string[] args) {  
   string[] realArgs = args[1..$];
   if (realArgs.length > 1) {
       writeln(USAGE);
