@@ -4,6 +4,8 @@ import std.stdio;
 import std.file;
 import std.conv;
 import loxer;
+import loxast;
+import parser;
 
 immutable string USAGE = "Usage: dlox <file>";
 
@@ -27,10 +29,10 @@ void runPrompt() {
 void run(string source) {
   auto scner = new Scanner(source);
   auto tokens = scner.scanTokens();
-  foreach (token; tokens)
-  {
-    writeln(token);
-  }
+  Parser parser = new Parser(tokens);
+  Expr expression = parser.parse().get();
+
+  writeln(new AstPrinter().print(expression));
 }
 
 void main(string[] args) {  
