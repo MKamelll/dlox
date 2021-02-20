@@ -65,6 +65,11 @@ abstract class Expr {
     void accept(Visitor visitor) {
       visitor.visit(this);
     }
+
+    override
+    string toString() const {
+      return lexLiteralStr(literal);
+    }
   }
 
   static class Grouping : Expr
