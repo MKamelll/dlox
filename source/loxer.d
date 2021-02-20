@@ -30,7 +30,7 @@ enum TokenType
   EOF
 }
 
-alias LexLiteral = Algebraic!(int, string, double, typeof(null));
+alias LexLiteral = Algebraic!(int, string, double, bool, typeof(null));
 string lexLiteralStr(LexLiteral literal) {
   return literal.toString();
 }
