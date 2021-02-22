@@ -6,12 +6,16 @@ import std.conv;
 import loxer;
 import loxast;
 import parser;
+import loxerr;
+import core.stdc.stdlib;
+import interpreter;
 
 immutable string USAGE = "Usage: dlox <file>";
 
 void runFile(string path) {
   string content = readText(path);
   run(content);
+  if (hadRuntimeError) exit(70);
 }
 
 void runPrompt() {
@@ -29,10 +33,10 @@ void runPrompt() {
 void run(string source) {
   auto scner = new Scanner(source);
   auto tokens = scner.scanTokens();
-  Parser parser = new Parser(tokens);
+  auto parser = new Parser(tokens);
+  auto interpreter = new Interpreter();
   Expr expression = parser.parse().get();
-
-  writeln(new AstPrinter().print(expression));
+  interpreter.interpret(expression);
 }
 
 void main(string[] args) {  
