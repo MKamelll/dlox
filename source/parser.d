@@ -3,16 +3,7 @@ module parser;
 import loxer;
 import loxast;
 import std.typecons;
-
-class ParseError : Exception
-{
-  this(string msg = "", string file = __FILE__,
-   size_t line = __LINE__,
-    Throwable nextInChain = null) pure nothrow @nogc @safe
-  {
-    super(msg, file, line, nextInChain);
-  }
-}
+import loxerr;
 
 class Parser
 {
@@ -152,9 +143,7 @@ class Parser
   }
 
   private ParseError error(Token token, string message) {
-    import loxerr : Loxerr;
-    Loxerr.error(token, message);
-    
+    Loxerr.error(token, message);    
     return new ParseError();
   }
 

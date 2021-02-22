@@ -5,6 +5,28 @@ import std.conv;
 import std.array;
 import loxer : Token, TokenType;
 
+static bool hadRuntimeError = false;
+
+class RuntimeError : Exception
+{
+  Token token;
+  this(Token token, string msg, string file = __FILE__, size_t line = __LINE__,
+  Throwable nextInChain = null) pure nothrow @nogc @safe
+  {
+    super(msg, file, line, nextInChain);
+    this.token = token;
+  }
+}
+
+class ParseError : Exception
+{
+  this(string msg = "", string file = __FILE__,
+   size_t line = __LINE__,
+    Throwable nextInChain = null) pure nothrow @nogc @safe
+  {
+    super(msg, file, line, nextInChain);
+  }
+}
 
 class Loxerr
 {
@@ -18,6 +40,12 @@ class Loxerr
       } else {
         report(token.line, " at '" ~ token.lexeme ~ "'", message);
       }
+    }
+
+    static void runtimeError(RuntimeError error) {
+      stderr.writeln(error.message ~ 
+      "\n[line " ~ to!string(error.token.line) ~ "]");
+      hadRuntimeError = true;
     }
 
     private static void report(int line, string where,
