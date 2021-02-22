@@ -104,7 +104,8 @@ class Interpreter : Visitor
         result = left.get!double - right.get!double;
         break;
       case TokenType.PLUS:
-        if (left.type == typeid(double) && right.type == typeid(double)) {
+        if ((left.type == typeid(double) && right.type == typeid(double))
+           || (left.type == typeid(int) && right.type == typeid(int))) {
           result = left.get!double + right.get!double;
           break;
         }
