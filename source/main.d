@@ -4,7 +4,8 @@ import std.stdio;
 import std.file;
 import std.conv;
 import loxer;
-import loxast;
+import exprast;
+import stmtast;
 import parser;
 import loxerr;
 import core.stdc.stdlib;
@@ -35,8 +36,8 @@ void run(string source) {
   auto tokens = scner.scanTokens();
   auto parser = new Parser(tokens);
   auto interpreter = new Interpreter();
-  Expr expression = parser.parse().get();
-  interpreter.interpret(expression);
+  auto statements = parser.parse();
+  interpreter.interpret(statements);
 }
 
 void main(string[] args) {  

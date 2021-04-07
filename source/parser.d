@@ -1,9 +1,11 @@
 module parser;
 
 import loxer;
-import loxast;
+import exprast;
+import stmtast;
 import std.typecons;
 import loxerr;
+import std.stdio;
 
 class Parser
 {
@@ -14,12 +16,29 @@ class Parser
     this.tokens = tokens;
   }
 
-  Nullable!Expr parse() {
-    Nullable!Expr result;
-    try {
-      result = expression().nullable;
-    } catch (ParseError error) {}
-    return result;
+  Stmt[] parse() {
+    Stmt[] statements;
+    while (!isAtEnd()) {
+      statements ~= statement();
+    }
+    return statements;
+  }
+  
+  private Stmt statement() {
+    if (match(TokenType.PRINT)) return printStatement();
+    return expressionStatement();
+  }
+
+  private Stmt printStatement() {
+    Expr value = expression();
+    consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    return new Stmt.Print(value);
+  }
+
+  private Stmt expressionStatement() {
+    Expr expr = expression();
+    consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+    return new Stmt.Expression(expr);
   }
 
   private Expr expression() {

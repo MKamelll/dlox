@@ -1,20 +1,23 @@
 module interpreter;
 
-import loxast;
+import exprast;
+import stmtast;
 import loxer;
 import std.variant;
 import std.stdio;
 import std.string;
 import loxerr;
 
-class Interpreter : Visitor
+class Interpreter : Expr.Visitor, Stmt.Visitor
 {
   Variant result;
 
-  void interpret(Expr expr) {
+  void interpret(Stmt[] statements) {
     try {
-      Variant value = evaluate(expr);
-      writeln(stringify(value));
+      foreach (statement; statements)
+      {
+        execute(statement);
+      }
     } catch (RuntimeError error) {
       Loxerr.runtimeError(error);
     }
@@ -25,6 +28,10 @@ class Interpreter : Visitor
     return result;
   }
 
+  private void execute(Stmt stmt) {
+    stmt.accept(this);
+  }
+
   private string stringify(Variant v) {
     if (v.type == typeid(null)) return "nil";
     if (v.type == typeid(double)) {
@@ -32,6 +39,17 @@ class Interpreter : Visitor
       return text.chomp(".0");
     }
     return v.toString();
+  }
+
+  override
+  public void visit(Stmt.Expression stmt) {
+    evaluate(stmt.expression);
+  }
+
+  override
+  public void visit(Stmt.Print stmt) {
+    Variant value = evaluate(stmt.expression);
+    writeln(stringify(value));
   }
 
   override
