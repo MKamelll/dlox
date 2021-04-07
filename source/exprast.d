@@ -1,4 +1,4 @@
-module loxast;
+module exprast;
 
 import std.variant;
 import loxer;
@@ -10,17 +10,17 @@ import loxer;
 // answered by: Paul Backus
 // https://forum.dlang.org/post/ardcugqzjcxbtqqmvlxa@forum.dlang.org
 
-interface Visitor
-{
-  void visit(Expr.Binary expr);
-  void visit(Expr.Literal expr);
-  void visit(Expr.Unary expr);
-  void visit(Expr.Grouping expr);
-}
-
 abstract class Expr {
 
-  abstract void accept(Visitor visitor);
+  interface Visitor
+  {
+    void visit(Expr.Binary expr);
+    void visit(Expr.Literal expr);
+    void visit(Expr.Unary expr);
+    void visit(Expr.Grouping expr);
+  }
+
+  abstract void accept(Expr.Visitor visitor);
 
   static class Binary : Expr
   {
@@ -34,7 +34,7 @@ abstract class Expr {
     }
     
     override
-    void accept(Visitor visitor) {
+    void accept(Expr.Visitor visitor) {
       visitor.visit(this);
     }
   }
@@ -49,7 +49,7 @@ abstract class Expr {
     }
     
     override
-    void accept(Visitor visitor) {
+    void accept(Expr.Visitor visitor) {
       visitor.visit(this);
     }
   }
@@ -62,7 +62,7 @@ abstract class Expr {
     }
     
     override
-    void accept(Visitor visitor) {
+    void accept(Expr.Visitor visitor) {
       visitor.visit(this);
     }
 
@@ -80,13 +80,13 @@ abstract class Expr {
     }
     
     override
-    void accept(Visitor visitor) {
+    void accept(Expr.Visitor visitor) {
       visitor.visit(this);
     }
   }
 }
 
-class AstPrinter : Visitor
+class AstPrinter : Expr.Visitor
 {
   string result;
   
