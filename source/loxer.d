@@ -233,7 +233,7 @@ class Scanner
   private void anIdentifier() {
     while (isAlphaNumeric(peek())) advance();
 
-    string text = source[start..current - 1];
+    string text = source[start..current];
     TokenType type = text in keywords ? keywords[text]
     : TokenType.IDENTIFIER;
     
