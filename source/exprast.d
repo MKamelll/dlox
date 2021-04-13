@@ -18,6 +18,7 @@ abstract class Expr {
     void visit(Expr.Literal expr);
     void visit(Expr.Unary expr);
     void visit(Expr.Grouping expr);
+    void visit(Expr.Variable expr);
   }
 
   abstract void accept(Expr.Visitor visitor);
@@ -84,6 +85,18 @@ abstract class Expr {
       visitor.visit(this);
     }
   }
+
+  static class Variable : Expr {
+    Token name;
+    this(Token name) {
+      this.name = name;
+    }
+
+    override
+    void accept(Expr.Visitor visitor) {
+      visitor.visit(this);
+    }
+  }
 }
 
 class AstPrinter : Expr.Visitor
@@ -116,6 +129,11 @@ class AstPrinter : Expr.Visitor
   override
   void visit(Expr.Grouping expr) {
     result = parenthesize("group", expr.expression);
+  }
+
+  override
+  void visit(Expr.Variable expr) {
+    result = expr.name.lexeme;
   }
 
   private string parenthesize(string name, Expr[] exprs...) {

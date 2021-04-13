@@ -7,10 +7,13 @@ import std.variant;
 import std.stdio;
 import std.string;
 import loxerr;
+import stmtast;
+import environment;
 
 class Interpreter : Expr.Visitor, Stmt.Visitor
 {
   Variant result;
+  private Environment environment = new Environment();
 
   void interpret(Stmt[] statements) {
     try {
@@ -39,6 +42,21 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
       return text.chomp(".0");
     }
     return v.toString();
+  }
+
+  override
+  public void visit(Stmt.Var stmt) {
+    Variant value = null;
+    if (stmt !is null) {
+      value = evaluate(stmt.intializer);
+    }
+
+    environment.define(stmt.name.lexeme, value);
+  }
+
+  override
+  public void visit(Expr.Variable expr) {
+    result = environment.get(expr.name);
   }
 
   override

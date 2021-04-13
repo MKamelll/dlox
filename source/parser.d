@@ -19,9 +19,32 @@ class Parser
   Stmt[] parse() {
     Stmt[] statements;
     while (!isAtEnd()) {
-      statements ~= statement();
+      statements ~= declaration();
     }
     return statements;
+  }
+
+  private Stmt declaration() {
+    try {
+      if (match(TokenType.VAR)) return varDeclaration();
+
+      return statement();
+    } catch (ParseError error) {
+      synchronize();
+      return null;
+    }
+  }
+
+  private Stmt varDeclaration() {
+    Token name = consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+    Expr intializer = null;
+    if (match(TokenType.EQUAL)) {
+      intializer = expression();
+    }
+
+    consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+    return new Stmt.Var(name, intializer);
   }
   
   private Stmt statement() {
@@ -145,6 +168,10 @@ class Parser
 
     if (match(TokenType.NUMBER, TokenType.STRING)) {
       return new Expr.Literal(previous().literal);
+    }
+
+    if (match(TokenType.IDENTIFIER)) {
+      return new Expr.Variable(previous());
     }
 
     if (match(TokenType.LEFT_PAREN)) {
