@@ -13,3 +13,4 @@ d-lox-test-*
 *.o
 *.obj
 *.lst
+/build
