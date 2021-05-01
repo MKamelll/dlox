@@ -55,6 +55,13 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
   }
 
   override
+  public void visit(Expr.Assign expr) {
+    Variant value = evaluate(expr.value);
+    environment.assign(expr.name, value);
+    result = value;
+  }
+
+  override
   public void visit(Expr.Variable expr) {
     result = environment.get(expr.name);
   }

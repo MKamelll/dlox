@@ -19,9 +19,25 @@ abstract class Expr {
     void visit(Expr.Unary expr);
     void visit(Expr.Grouping expr);
     void visit(Expr.Variable expr);
+    void visit(Expr.Assign expr);
   }
 
   abstract void accept(Expr.Visitor visitor);
+
+  static class Assign : Expr
+  {
+    Token name;
+    Expr value;
+    this(Token name, Expr value) {
+      this.name = name;
+      this.value = value;
+    }
+
+    override
+    void accept(Expr.Visitor visitor) {
+      visitor.visit(this);
+    }
+  }
 
   static class Binary : Expr
   {
@@ -133,6 +149,11 @@ class AstPrinter : Expr.Visitor
 
   override
   void visit(Expr.Variable expr) {
+    result = expr.name.lexeme;
+  }
+
+  override
+  void visit(Expr.Assign expr) {
     result = expr.name.lexeme;
   }
 

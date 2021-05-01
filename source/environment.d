@@ -18,8 +18,15 @@ class Environment
     if (name.lexeme in values) {
       return values[name.lexeme];
     }
-
     throw new RuntimeError(name,
       "Undefined variable '" ~ name.lexeme ~ "'.");
+  }
+
+  void assign(Token name, Variant value) {
+    if (name.lexeme in values) {
+      values[name.lexeme] = value;
+    } else {
+      throw new RuntimeError(name, "Undefined variable '" ~ name.lexeme ~ "'.");
+    }
   }
 }
