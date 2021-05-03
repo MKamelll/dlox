@@ -10,9 +10,22 @@ abstract class Stmt {
     void visit(Stmt.Expression stmt);
     void visit(Stmt.Print stmt);
     void visit(Stmt.Var stmt);
+    void visit(Stmt.Block stmt);
   }
 
   abstract void accept(Stmt.Visitor visitor);
+
+  static class Block : Stmt {
+    Stmt[] statements;
+    this(Stmt[] statements) {
+      this.statements = statements;
+    }
+
+    override
+    void accept(Stmt.Visitor visitor) {
+      visitor.visit(this);
+    }
+  }
 
   static class Expression : Stmt {
     Expr expression;

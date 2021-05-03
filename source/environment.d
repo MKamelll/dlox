@@ -9,6 +9,15 @@ import loxerr;
 class Environment
 {
   private Variant[string] values;
+  private Environment enclosing;
+
+  this() {
+    enclosing = null;
+  }
+  
+  this(Environment enclosing) {
+    this.enclosing = enclosing;
+  }
 
   void define(string name, Variant value) {
     values[name] = value;
@@ -18,6 +27,9 @@ class Environment
     if (name.lexeme in values) {
       return values[name.lexeme];
     }
+
+    if (enclosing !is null) return enclosing.get(name);
+    
     throw new RuntimeError(name,
       "Undefined variable '" ~ name.lexeme ~ "'.");
   }
@@ -25,8 +37,15 @@ class Environment
   void assign(Token name, Variant value) {
     if (name.lexeme in values) {
       values[name.lexeme] = value;
-    } else {
-      throw new RuntimeError(name, "Undefined variable '" ~ name.lexeme ~ "'.");
+      return;
     }
+    
+    if (enclosing !is null) {
+      enclosing.assign(name, value);
+      return;
+    }
+    
+    throw new RuntimeError(name, "Undefined variable '" ~ name.lexeme ~ "'.");
+    
   }
 }

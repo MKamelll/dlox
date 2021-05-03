@@ -44,6 +44,27 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
     return v.toString();
   }
 
+  private void executeBlock(Stmt[] statements, 
+  Environment environment) {
+    Environment previous = this.environment;
+
+    try {
+      this.environment = environment;
+
+      foreach (statement; statements)
+      {
+        execute(statement);
+      }
+    } finally {
+      this.environment = previous;
+    }
+  }
+
+  override
+  public void visit(Stmt.Block stmt) {
+    executeBlock(stmt.statements, new Environment(environment));
+  }
+
   override
   public void visit(Stmt.Var stmt) {
     Variant value = null;
