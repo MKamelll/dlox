@@ -20,9 +20,27 @@ abstract class Expr {
     void visit(Expr.Grouping expr);
     void visit(Expr.Variable expr);
     void visit(Expr.Assign expr);
+    void visit(Expr.Logical expr);
   }
 
   abstract void accept(Expr.Visitor visitor);
+
+  static class Logical : Expr {
+    Expr left;
+    Token operator;
+    Expr right;
+
+    this(Expr left, Token operator, Expr right) {
+      this.left = left;
+      this.operator = operator;
+      this.right = right;
+    }
+
+    override
+    void accept(Expr.Visitor visitor) {
+      visitor.visit(this);
+    }
+  }
 
   static class Assign : Expr
   {
@@ -155,6 +173,11 @@ class AstPrinter : Expr.Visitor
   override
   void visit(Expr.Assign expr) {
     result = expr.name.lexeme;
+  }
+
+  override
+  void visit(Expr.Logical expr) {
+    result = expr.operator.lexeme;
   }
 
   private string parenthesize(string name, Expr[] exprs...) {

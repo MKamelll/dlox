@@ -11,9 +11,27 @@ abstract class Stmt {
     void visit(Stmt.Print stmt);
     void visit(Stmt.Var stmt);
     void visit(Stmt.Block stmt);
+    void visit(Stmt.If stmt);
   }
 
   abstract void accept(Stmt.Visitor visitor);
+
+  static class If : Stmt {
+    Expr condition;
+    Stmt thenBranch;
+    Stmt elseBranch;
+
+    this(Expr condition, Stmt thenBranch, Stmt elseBranch) {
+      this.condition = condition;
+      this.thenBranch = thenBranch;
+      this.elseBranch = elseBranch;
+    }
+
+    override
+    void accept(Stmt.Visitor visitor) {
+      visitor.visit(this);
+    }
+  }
 
   static class Block : Stmt {
     Stmt[] statements;

@@ -61,6 +61,15 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
   }
 
   override
+  public void visit(Stmt.If stmt) {
+    if (isTruthy(evaluate(stmt.condition))) {
+      execute(stmt.thenBranch);
+    } else if (stmt.elseBranch !is null) {
+      execute(stmt.elseBranch);
+    }
+  }
+
+  override
   public void visit(Stmt.Block stmt) {
     executeBlock(stmt.statements, new Environment(environment));
   }
@@ -73,6 +82,25 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
     }
 
     environment.define(stmt.name.lexeme, value);
+  }
+
+  override
+  public void visit(Expr.Logical expr) {
+    Variant left = evaluate(expr.left);
+
+    if (expr.operator.type == TokenType.OR) {
+      if (isTruthy(left)) { 
+        result = left;
+        return;
+      }
+    } else {
+      if (!isTruthy(left)) {
+        result = left;
+        return;
+      }
+    }
+    
+    result = evaluate(expr.right);
   }
 
   override
