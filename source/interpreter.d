@@ -61,6 +61,13 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
   }
 
   override
+  public void visit(Stmt.While stmt) {
+    while(isTruthy(evaluate(stmt.condition))) {
+      execute(stmt.corpse);
+    }
+  }
+
+  override
   public void visit(Stmt.If stmt) {
     if (isTruthy(evaluate(stmt.condition))) {
       execute(stmt.thenBranch);

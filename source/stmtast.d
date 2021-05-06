@@ -12,9 +12,25 @@ abstract class Stmt {
     void visit(Stmt.Var stmt);
     void visit(Stmt.Block stmt);
     void visit(Stmt.If stmt);
+    void visit(Stmt.While stmt);
   }
 
   abstract void accept(Stmt.Visitor visitor);
+
+  static class While : Stmt {
+    Expr condition;
+    Stmt corpse; // body is a D keyword
+
+    this(Expr condition, Stmt corpse) {
+      this.condition = condition;
+      this.corpse = corpse;
+    }
+
+    override
+    void accept(Stmt.Visitor visitor) {
+      visitor.visit(this);
+    }
+  }
 
   static class If : Stmt {
     Expr condition;

@@ -51,6 +51,7 @@ class Parser
     if (match(TokenType.PRINT)) return printStatement();
     if (match(TokenType.LEFT_BRACE)) return new Stmt.Block(block());
     if (match(TokenType.IF)) return ifStatement();
+    if (match(TokenType.WHILE)) return whileStatement();
     return expressionStatement();
   }
 
@@ -70,6 +71,16 @@ class Parser
     consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
 
     return statements;
+  }
+
+  private Stmt whileStatement() {
+    consume(TokenType.LEFT_PAREN, "Expect '(' after while");
+    Expr condition = expression();
+    consume(TokenType.RIGHT_PAREN, "Expect ')' after condition");
+
+    Stmt corpse = statement();
+
+    return new Stmt.While(condition, corpse);
   }
 
   private Stmt ifStatement() {
