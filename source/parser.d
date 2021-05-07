@@ -52,6 +52,7 @@ class Parser
     if (match(TokenType.LEFT_BRACE)) return new Stmt.Block(block());
     if (match(TokenType.IF)) return ifStatement();
     if (match(TokenType.WHILE)) return whileStatement();
+    if (match(TokenType.FOR)) return forStatement();
     return expressionStatement();
   }
 
@@ -71,6 +72,47 @@ class Parser
     consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
 
     return statements;
+  }
+
+  private Stmt forStatement() {
+    consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+
+    Stmt intializer;
+    if (match(TokenType.SEMICOLON)) {
+      intializer = null;
+    } else if (match(TokenType.VAR)) {
+      intializer = varDeclaration();
+    } else {
+      intializer = expressionStatement();
+    }
+
+    Expr condition = null;
+    if (!check(TokenType.SEMICOLON)) {
+      condition = expression();
+    }
+    consume(TokenType.SEMICOLON, "Expect ';' after loop condition.");
+
+    Expr increment = null;
+    if (!check(TokenType.RIGHT_PAREN)) {
+      increment = expression();
+    }
+    consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
+
+    Stmt corpse = statement();
+
+    if (increment !is null) {
+      corpse = new Stmt.Block([corpse, 
+      new Stmt.Expression(increment)]);
+    }
+
+    if (condition is null) condition = new Expr.Literal(LexLiteral(true));
+    corpse = new Stmt.While(condition, corpse);
+
+    if (intializer !is null) {
+      corpse = new Stmt.Block([intializer, corpse]);
+    }
+
+    return corpse;
   }
 
   private Stmt whileStatement() {
