@@ -130,7 +130,7 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
       arguments ~= evaluate(argument);
     }
 
-    if (!callee.peek!(LoxCallable)) {
+    if (!callee.convertsTo!(LoxCallable)) {
       throw new RuntimeError(expr.paren, 
         "Can only call functions and classes.");
     }
