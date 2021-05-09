@@ -1,19 +1,42 @@
 module interpreter;
 
-import exprast;
-import stmtast;
-import loxer;
 import std.variant;
 import std.stdio;
 import std.string;
+import std.conv;
+import std.datetime;
+import exprast;
+import stmtast;
+import loxer;
 import loxerr;
 import stmtast;
 import environment;
+import loxcallable;
+import loxfunction;
 
 class Interpreter : Expr.Visitor, Stmt.Visitor
 {
   Variant result;
-  private Environment environment = new Environment();
+  public Environment globals = new Environment();
+  private Environment environment;
+
+  this() {
+    environment = globals;
+    globals.define("clock", 
+    Variant(new class LoxCallable {
+      
+      override
+      public int arity() { return 0; }
+
+      override
+      public Variant call(Interpreter interpreter,
+      Variant[] arguments) {
+        return Variant(to!double
+        (Clock.currTime.toUnixTime()));
+      }
+    }));
+
+  }
 
   void interpret(Stmt[] statements) {
     try {
@@ -44,7 +67,7 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
     return v.toString();
   }
 
-  private void executeBlock(Stmt[] statements, 
+  public void executeBlock(Stmt[] statements, 
   Environment environment) {
     Environment previous = this.environment;
 
@@ -58,6 +81,12 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
     } finally {
       this.environment = previous;
     }
+  }
+
+  override
+  public void visit(Stmt.Function stmt) {
+    LoxFunction job = new LoxFunction(stmt);
+    environment.define(stmt.name.lexeme, Variant(job));
   }
 
   override
@@ -89,6 +118,29 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
     }
 
     environment.define(stmt.name.lexeme, value);
+  }
+
+  override
+  public void visit(Expr.Call expr) {
+    Variant callee = evaluate(expr.callee);
+
+    Variant[] arguments;
+    foreach (argument; expr.arguments)
+    {
+      arguments ~= evaluate(argument);
+    }
+
+    if (!callee.peek!(LoxCallable)) {
+      throw new RuntimeError(expr.paren, 
+        "Can only call functions and classes.");
+    }
+
+    LoxCallable job = callee.get!(LoxCallable);
+    if (arguments.length != job.arity()) {
+      throw new RuntimeError(expr.paren, 
+      "Expected " ~ to!string(job.arity()) ~ " arguments but got " ~ to!string(arguments.length) ~ ".");
+    }
+    result = job.call(this, arguments);
   }
 
   override

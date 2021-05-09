@@ -13,9 +13,27 @@ abstract class Stmt {
     void visit(Stmt.Block stmt);
     void visit(Stmt.If stmt);
     void visit(Stmt.While stmt);
+    void visit(Stmt.Function stmt);
   }
 
   abstract void accept(Stmt.Visitor visitor);
+
+  static class Function : Stmt {
+    Token name;
+    Token[] params;
+    Stmt[] corpse;
+
+    this(Token name, Token[] params, Stmt[] corpse) {
+      this.name = name;
+      this.params = params;
+      this.corpse = corpse;
+    }
+
+    override
+    void accept(Stmt.Visitor visitor) {
+      visitor.visit(this);
+    }
+  }
 
   static class While : Stmt {
     Expr condition;
