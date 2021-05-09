@@ -84,6 +84,14 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
   }
 
   override
+  public void visit(Stmt.Return stmt) {
+    Variant value = null;
+    if (stmt.value !is null) value = evaluate(stmt.value);
+
+    throw new Return(value);
+  }
+
+  override
   public void visit(Stmt.Function stmt) {
     LoxFunction job = new LoxFunction(stmt);
     environment.define(stmt.name.lexeme, Variant(job));

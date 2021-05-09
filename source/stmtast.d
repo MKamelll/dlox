@@ -14,9 +14,25 @@ abstract class Stmt {
     void visit(Stmt.If stmt);
     void visit(Stmt.While stmt);
     void visit(Stmt.Function stmt);
+    void visit(Stmt.Return stmt);
   }
 
   abstract void accept(Stmt.Visitor visitor);
+
+  static class Return : Stmt {
+    Token keyword;
+    Expr value;
+
+    this(Token keyword, Expr value) {
+      this.keyword = keyword;
+      this.value = value;
+    }
+
+    override
+    void accept(Stmt.Visitor visitor) {
+      visitor.visit(this);
+    }
+  }
 
   static class Function : Stmt {
     Token name;

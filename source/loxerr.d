@@ -1,11 +1,24 @@
 module loxerr;
 
 import std.stdio;
+import std.variant;
 import std.conv;
 import std.array;
 import loxer : Token, TokenType;
 
 static bool hadRuntimeError = false;
+
+class Return : Exception
+{
+  Variant value;
+  this(Variant value , string msg = "", string file = __FILE__, size_t line = __LINE__,
+  Throwable nextInChain = null)
+  {
+    super(msg, file, line, nextInChain);
+    this.value = value;
+  }
+}
+
 
 class RuntimeError : Exception
 {

@@ -5,6 +5,7 @@ import std.variant;
 import loxcallable;
 import stmtast;
 import std.conv;
+import loxerr;
 import interpreter : Interpreter;
 import environment : Environment;
 
@@ -30,7 +31,12 @@ class LoxFunction : LoxCallable
       environment.define(declaration.params[i].lexeme, arguments[i]);
     }
 
-    interpreter.executeBlock(declaration.corpse, environment);
+    try {
+      interpreter.executeBlock(declaration.corpse, environment);
+    } catch (Return returnValue) {
+      return returnValue.value;
+    }
+    
     return Variant(null);
   }
 
