@@ -93,7 +93,7 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
 
   override
   public void visit(Stmt.Function stmt) {
-    LoxFunction job = new LoxFunction(stmt);
+    LoxFunction job = new LoxFunction(stmt, environment);
     environment.define(stmt.name.lexeme, Variant(job));
   }
 

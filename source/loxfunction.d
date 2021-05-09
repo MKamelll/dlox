@@ -12,9 +12,11 @@ import environment : Environment;
 class LoxFunction : LoxCallable
 {
   private Stmt.Function declaration;
+  private Environment closure;
 
-  this(Stmt.Function declaration) {
+  this(Stmt.Function declaration, Environment closure) {
     this.declaration = declaration;
+    this.closure = closure;
   }
 
   override
@@ -25,7 +27,7 @@ class LoxFunction : LoxCallable
   override
   public Variant call(Interpreter interpreter,
   Variant[] arguments) {
-    Environment environment = new Environment(interpreter.globals);
+    Environment environment = new Environment(closure);
 
     for (int i = 0; i < declaration.params.length; i++) {
       environment.define(declaration.params[i].lexeme, arguments[i]);
