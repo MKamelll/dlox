@@ -34,6 +34,23 @@ class Environment
       "Undefined variable '" ~ name.lexeme ~ "'.");
   }
 
+  Variant getAt(int distance, string name) {
+    return ancestor(distance).values[name];
+  }
+
+  void assignAt(int distance, Token name, Variant value) {
+    ancestor(distance).values[name.lexeme] = value;
+  }
+
+  Environment ancestor(int distance) {
+    Environment environment = this;
+    for (int i = 0; i < distance; i++) {
+      environment = environment.enclosing;
+    }
+
+    return environment;
+  }
+
   void assign(Token name, Variant value) {
     if (name.lexeme in values) {
       values[name.lexeme] = value;

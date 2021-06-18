@@ -17,6 +17,7 @@ import loxfunction;
 class Interpreter : Expr.Visitor, Stmt.Visitor
 {
   Variant result;
+  private int[Expr] locals;
   public Environment globals = new Environment();
   private Environment environment;
 
@@ -173,13 +174,27 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
   override
   public void visit(Expr.Assign expr) {
     Variant value = evaluate(expr.value);
-    environment.assign(expr.name, value);
-    result = value;
+    if (expr in locals) {
+      const int distance = locals[expr];
+      environment.assignAt(distance, expr.name, value);
+      return;
+    } else {
+      globals.assign(expr.name, value);
+    }
   }
 
   override
   public void visit(Expr.Variable expr) {
-    result = environment.get(expr.name);
+    result = lookUpVariable(expr.name, expr);
+  }
+
+  private Variant lookUpVariable(Token name, Expr expr) {
+    if (expr in locals) {
+      const int distance = locals[expr];
+      return environment.getAt(distance, name.lexeme);
+    } else {
+      return globals.get(name);
+    }
   }
 
   override
@@ -295,6 +310,10 @@ class Interpreter : Expr.Visitor, Stmt.Visitor
   private void checkNumberOperands(Token operator, Variant left, Variant right) {
     if (left.type == typeid(double) && right.type == typeid(double)) return;
     throw new RuntimeError(operator, "Operands must be numbers.");
+  }
+
+  public void resolve(Expr expr, int depth) {
+    locals[expr] = depth;
   }
 
 }
