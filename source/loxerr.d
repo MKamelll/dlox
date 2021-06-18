@@ -7,6 +7,7 @@ import std.array;
 import loxer : Token, TokenType;
 
 static bool hadRuntimeError = false;
+static bool hadError = false;
 
 class Return : Exception
 {
@@ -68,5 +69,6 @@ class Loxerr
         "] Error" ~ where ~ ": " ~ message;
         string border = replicate("#", outMessage.length);
         stderr.writeln(border ~ "\n" ~ outMessage ~ "\n" ~ border);
+        hadError = true;
     }
 }

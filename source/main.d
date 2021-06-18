@@ -3,19 +3,22 @@ module main;
 import std.stdio;
 import std.file;
 import std.conv;
+import core.stdc.stdlib;
+
 import loxer;
 import exprast;
 import stmtast;
 import parser;
 import loxerr;
-import core.stdc.stdlib;
 import interpreter;
+import resolver;
 
 immutable string USAGE = "Usage: dlox <file>";
 
 void runFile(string path) {
   string content = readText(path);
   run(content);
+  if (hadError) exit(65);
   if (hadRuntimeError) exit(70);
 }
 
@@ -28,6 +31,7 @@ void runPrompt() {
       break;
     }
     run(inputLine);
+    hadError = false;
   }
 }
 
@@ -35,8 +39,16 @@ void run(string source) {
   auto scner = new Scanner(source);
   auto tokens = scner.scanTokens();
   auto parser = new Parser(tokens);
-  auto interpreter = new Interpreter();
   auto statements = parser.parse();
+
+  if (hadError) return;
+
+  auto interpreter = new Interpreter();
+  auto resolver = new Resolver(interpreter);
+  resolver.resolve(statements);
+
+  if (hadError) return;
+
   interpreter.interpret(statements);
 }
 
